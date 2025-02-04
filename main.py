@@ -27,14 +27,14 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(weather_service.fetch_weather_data, 'interval', minutes=5)
 scheduler.start()
 
-@app.on_event("startup")
-async def startup_event():
-    # Initialize database connection, etc.
-    pass
+# @app.on_event("shutdown")
+# async def startup_event():
+#     # Initialize database connection, etc.
+#     pass
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    scheduler.shutdown()
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     scheduler.shutdown()
 
 @app.get("/")
 async def root():
@@ -56,3 +56,6 @@ async def set_alert_threshold(threshold: float, city: str):
 @app.get("/alerts/{city}")
 async def get_alerts(city: str):
     return alert_service.get_alerts(city)
+
+
+    

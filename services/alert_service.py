@@ -1,35 +1,34 @@
-import pytest
-from datetime import datetime
-from services.alert_service import AlertService
-from models.weather_data import WeatherData
+# services/alert_service.py
 
-@pytest.fixture
-def mock_settings():
-    class MockSettings:
-        def get_cities(self):
-            return ['TestCity']
-    return MockSettings()
+class AlertService:
+    def __init__(self, settings):
+        self.settings = settings
+        self.thresholds = {}
+        self.alerts = {}
 
-@pytest.fixture
-def alert_service(mock_settings):
-    return AlertService(mock_settings)
+    def set_threshold(self, threshold: float, city: str):
+        # Set the alert threshold for a given city
+        self.thresholds[city] = threshold
 
-def test_set_threshold(alert_service):
-    alert_service.set_threshold(30, "TestCity")
-    assert alert_service.thresholds["TestCity"] == 30
+    def check_alert(self, weather_data):
+        # Check the weather data and, if it exceeds the threshold, add an alert.
+        city = weather_data.city
+        if city in self.thresholds and weather_data.temp > self.thresholds[city]:
+            if city not in self.alerts:
+                self.alerts[city] = []
+            self.alerts[city].append(weather_data)
 
-def test_check_alert(alert_service):
-    alert_service.set_threshold(30, "TestCity")
-    weather_data = WeatherData(city="TestCity", main="Clear", temp=32, feels_like=34, dt=datetime.fromtimestamp(1622555555))
-    alert_service.check_alert(weather_data)
-    assert len(alert_service.alerts["TestCity"]) == 1
+    def get_daily_summary(self, city: str, weather_data_list: list):
+        # Calculate a daily summary (average, min, max temperature) from a list of weather data entries.
+        temps = [data.temp for data in weather_data_list if data.city == city]
+        if temps:
+            return {
+                "avg_temp": sum(temps) / len(temps),
+                "min_temp": min(temps),
+                "max_temp": max(temps)
+            }
+        return {}
 
-def test_get_daily_summary(alert_service):
-    weather_data = [
-        WeatherData(city="TestCity", main="Clear", temp=20, feels_like=22, dt=datetime.fromtimestamp(1622555555)),
-        WeatherData(city="TestCity", main="Cloudy", temp=25, feels_like=26, dt=datetime.fromtimestamp(1622565555))
-    ]
-    summary = alert_service.get_daily_summary("TestCity", weather_data)
-    assert summary["avg_temp"] == 22.5
-    assert summary["max_temp"] == 25
-    assert summary["min_temp"] == 20
+    def get_alerts(self, city: str):
+        # Return any alerts for the given city
+        return self.alerts.get(city, [])
