@@ -33,7 +33,8 @@ class WeatherService:
                         temp=data['main']['temp'],
                         feels_like=data['main']['feels_like'],
                         main=data['weather'][0]['main'],
-                        dt=datetime.fromtimestamp(data['dt'])
+                       dt = int(data["dt"]) , # Ensure it's an integer
+
                     )
                 else:
                     raise Exception(f"Failed to fetch weather data for {city}")
