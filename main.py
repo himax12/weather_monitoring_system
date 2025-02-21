@@ -6,6 +6,7 @@ from services.weather_service import WeatherService
 from services.alert_service import AlertService
 from models.weather_data import WeatherData
 from utils.weather_analyzer import WeatherAnalyzer
+from visualization.charts import plot_temperature_over_time
 
 app = FastAPI()
 
@@ -58,4 +59,24 @@ async def get_alerts(city: str):
     return alert_service.get_alerts(city)
 
 
-    
+# --- New Endpoint for Chart ---
+@app.get("/chart/temperature/{city}")
+def get_temperature_chart(city: str):
+    """
+    Generate a PNG image of the temperature-over-time chart for the specified city.
+    """
+    # 1. Retrieve data for the city. Replace the next line with your actual data-fetching method.
+    df = weather_service.get_city_weather_data(city)  # This method should return a DataFrame
+
+    # 2. Generate the chart figure using the modified function (without showing or closing it)
+    fig = plot_temperature_over_time(df, city=city, show=False, return_fig=True)
+
+    # 3. Save the figure to an in-memory BytesIO buffer
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+    # Optionally, close the figure to free up memory
+    plt.close(fig)
+
+    # 4. Return the image as a StreamingResponse
+    return StreamingResponse(buf, media_type="image/png")    
