@@ -26,7 +26,7 @@ class WeatherDataDB(Base):
     main = Column(String)
     temp = Column(Float)
     feels_like = Column(Float)
-    dt = Column(DateTime)
+    dt = DateTime
 
 # Create all tables (if they don't exist already)
 Base.metadata.create_all(bind=engine)

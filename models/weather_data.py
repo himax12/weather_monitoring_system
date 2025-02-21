@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class WeatherData(BaseModel):
@@ -6,8 +6,9 @@ class WeatherData(BaseModel):
     main: str
     temp: float
     feels_like: float
-    dt: int
+    dt: int = Field(default_factory=lambda: int(datetime.now().timestamp()))  # Ensures dt gets a timestamp
 
     @property
-    def datetime(self):
-        return datetime.fromtimestamp(self.dt)
+    def datetime(self) -> datetime:
+        return datetime.fromtimestamp(self.dt)  # Convert timestamp to datetime
+
