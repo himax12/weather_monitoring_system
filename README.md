@@ -1,5 +1,4 @@
-# File: README.md
-
+]
 # Weather Monitoring System
 
 This project implements a real-time weather monitoring system using FastAPI.
